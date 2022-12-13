@@ -1,21 +1,21 @@
-# tiny-http-server
+# tiny-http-native
 
-Tiny HTTP server made purely on libuv and napi.
+Tiny HTTP library made purely on libuv and napi.
 
 ```
-npm install tiny-http-server
+npm install tiny-http-native
 ```
 
-Useful for embedded devices that only have napi but not node.
+Useful for embedded devices that only have n-api but not node.
 
-For simplicity reasons it does NOT support request bodies,
+Only HTTP servers at the moment and current does NOT support server request bodies,
 but supports most other HTTP features (keep-alive, chunked encoding etc)
-and streaming responses.
+and streaming server responses.
 
 ## Usage
 
 ``` js
-const http = require('tiny-http-server')
+const http = require('tiny-http-native')
 
 // same api as node
 
