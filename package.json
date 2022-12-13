@@ -1,0 +1,30 @@
+{
+  "name": "tiny-http-server",
+  "version": "0.0.0",
+  "description": "Tiny HTTP server made purely on libuv and napi",
+  "main": "index.js",
+  "dependencies": {
+    "b4a": "^1.6.1",
+    "events": "^3.3.0",
+    "napi-macros": "^2.1.0",
+    "node-gyp-build": "^4.5.0",
+    "streamx": "^2.13.0"
+  },
+  "devDependencies": {
+    "standard": "^17.0.0"
+  },
+  "scripts": {
+    "test": "standard"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/holepunchto/tiny-http-server.git"
+  },
+  "author": "Mathias Buus (@mafintosh)",
+  "license": "MIT",
+  "gypfile": true,
+  "bugs": {
+    "url": "https://github.com/holepunchto/tiny-http-server/issues"
+  },
+  "homepage": "https://github.com/holepunchto/tiny-http-server"
+}
