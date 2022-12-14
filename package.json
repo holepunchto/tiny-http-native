@@ -11,6 +11,9 @@
     "streamx": "^2.13.0"
   },
   "devDependencies": {
+    "mime-types": "^2.1.35",
+    "pump": "^3.0.0",
+    "range-parser": "^1.2.1",
     "standard": "^17.0.0"
   },
   "scripts": {
