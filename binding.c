@@ -2,6 +2,10 @@
 #include <node_api.h>
 #include <uv.h>
 
+#ifdef _WIN32
+#include <stdlib.h>
+#endif
+
 #define TINY_HTTP_THROW(err) \
   { \
     napi_throw_error(env, uv_err_name(err), uv_strerror(err)); \
@@ -256,7 +260,11 @@ NAPI_METHOD(tiny_http_connection_write) {
   uint32_t nbufs;
   napi_get_array_length(env, arr, &nbufs);
 
+#ifdef _WIN32
+  uv_buf_t *bufs = malloc(sizeof(uv_buf_t) * nbufs);
+#else
   uv_buf_t bufs[nbufs];
+#endif
 
   for (uint32_t i = 0; i < nbufs; i++) {
     napi_get_element(env, arr, i, &item);
@@ -266,6 +274,10 @@ NAPI_METHOD(tiny_http_connection_write) {
 
   req->data = c;
   uv_write(req, (uv_stream_t *) c, bufs, nbufs, on_write);
+
+#ifdef _WIN32
+  free(bufs);
+#endif
 
   return NULL;
 }
