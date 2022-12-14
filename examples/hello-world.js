@@ -1,4 +1,4 @@
-const http = require('./')
+const http = require('../')
 
 const server = http.createServer(function (req, res) {
   res.statusCode = 200

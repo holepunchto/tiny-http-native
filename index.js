@@ -1,7 +1,7 @@
 const stream = require('streamx')
 const { EventEmitter } = require('events')
 const b4a = require('b4a')
-const binding = require('node-gyp-build')(__dirname)
+const binding = require('./binding')
 
 const STATUS_CODES = new Map([
   [100, 'Continue'],
