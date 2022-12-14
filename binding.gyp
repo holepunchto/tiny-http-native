@@ -7,6 +7,13 @@
     'sources': [
       './binding.c',
     ],
+    'conditions': [
+      ['OS=="win"', {
+        'libraries': [
+          '-lws2_32',
+        ]
+      }],
+    ],
     'xcode_settings': {
       'OTHER_CFLAGS': [
         '-O3',

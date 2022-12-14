@@ -3,6 +3,7 @@
 #include <uv.h>
 
 #ifdef _WIN32
+#include <winsock.h>
 #include <stdlib.h>
 #endif
 
