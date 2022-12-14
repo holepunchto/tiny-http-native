@@ -1,6 +1,6 @@
 {
   "name": "tiny-http-native",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Tiny HTTP library made purely on libuv and napi",
   "main": "index.js",
   "dependencies": {
