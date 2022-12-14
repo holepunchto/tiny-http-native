@@ -1,10 +1,10 @@
 #include <napi-macros.h>
 #include <node_api.h>
+#include <stdlib.h>
 #include <uv.h>
 
 #ifdef _WIN32
 #include <winsock.h>
-#include <stdlib.h>
 #endif
 
 #define TINY_HTTP_THROW(err) \
@@ -22,7 +22,7 @@
   napi_value callback; \
   napi_get_reference_value(env, fn, &callback); \
   src \
-  napi_close_handle_scope(env, scope);
+    napi_close_handle_scope(env, scope);
 
 typedef struct {
   uv_tcp_t tcp;
@@ -179,10 +179,8 @@ on_new_connection (uv_stream_t *server, int status) {
 
       if (uv_accept(server, (uv_stream_t *) client) == 0) {
         uv_read_start((uv_stream_t *) client, alloc_buffer, on_read);
-      }
-      else {
-        // Just simple error handling...
-        uv_close((uv_handle_t*) client, NULL);
+      } else {
+        uv_close((uv_handle_t *) client, on_connection_close);
       }
     }
   })
@@ -236,7 +234,7 @@ NAPI_METHOD(tiny_http_bind) {
 
   int local_port = ntohs(((struct sockaddr_in *) &name)->sin_port);
 
-  err = uv_listen((uv_stream_t*) &(self->tcp), 128, on_new_connection);
+  err = uv_listen((uv_stream_t *) &(self->tcp), 128, on_new_connection);
 
   NAPI_RETURN_UINT32(local_port)
 }
@@ -261,11 +259,7 @@ NAPI_METHOD(tiny_http_connection_write) {
   uint32_t nbufs;
   napi_get_array_length(env, arr, &nbufs);
 
-#ifdef _WIN32
   uv_buf_t *bufs = malloc(sizeof(uv_buf_t) * nbufs);
-#else
-  uv_buf_t bufs[nbufs];
-#endif
 
   for (uint32_t i = 0; i < nbufs; i++) {
     napi_get_element(env, arr, i, &item);
@@ -276,9 +270,7 @@ NAPI_METHOD(tiny_http_connection_write) {
   req->data = c;
   uv_write(req, (uv_stream_t *) c, bufs, nbufs, on_write);
 
-#ifdef _WIN32
   free(bufs);
-#endif
 
   return NULL;
 }
