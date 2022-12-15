@@ -450,10 +450,6 @@ test('server does a big write', async function (t) {
   req.end()
 })
 
-/* function listen (server) {
-  return new Promise(resolve => server.listen(0, resolve))
-} */
-
 function waitForServer (server) {
   return new Promise((resolve, reject) => {
     server.on('listening', done)
