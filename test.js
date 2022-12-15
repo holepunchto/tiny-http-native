@@ -46,7 +46,7 @@ test('basic', async function (t) {
     t.is(res.statusCode, 200, 'default status code')
     t.alike(res.headers, {})
     t.ok(res.socket)
-    t.is(res.request, req) // + should req also have req.response?
+    t.is(res.request, req)
     t.is(res.headersSent, false, 'headers not flushed')
     t.is(res.chunked, true, 'chunked by default')
     t.is(res.onlyHeaders, false)
