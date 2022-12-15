@@ -216,7 +216,7 @@ module.exports = class Server extends EventEmitter {
   _onwrite (id, status) {
     const c = this.connections[id]
 
-    c.oncallback(status) // + this is being called with -14 by test "server does a big write"
+    c.oncallback(status)
   }
 
   _onclose (id) {
