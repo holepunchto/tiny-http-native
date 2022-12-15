@@ -466,7 +466,10 @@ test('server does a big write', async function (t) {
 
   server.on('request', function (req, res) {
     const chunks = []
-    res.on('data', (chunk) => chunks.push(chunk))
+    res.on('data', (chunk) => {
+      t.comment('res data received: ' + chunk.byteLength)
+      chunks.push(chunk)
+    })
     res.on('end', () => {
       const body = b4a.concat(chunks)
       const expected = b4a.alloc(32, 'abcd')
