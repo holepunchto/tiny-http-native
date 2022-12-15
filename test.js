@@ -47,7 +47,7 @@ test('basic', async function (t) {
     t.alike(res.headers, {})
     t.ok(res.socket)
     t.is(res.request, req) // + should req also have req.response?
-    t.is(res.headersFlushed, false, 'headers not flushed')
+    t.is(res.headersSent, false, 'headers not flushed')
     t.is(res.chunked, true, 'chunked by default')
     t.is(res.onlyHeaders, false)
 
@@ -66,7 +66,7 @@ test('basic', async function (t) {
     })
 
     res.on('close', function () {
-      t.is(res.headersFlushed, true, 'headers flushed')
+      t.is(res.headersSent, true, 'headers flushed')
       t.is(res.chunked, false, 'not chunked')
       t.pass('server response closed')
     })
@@ -322,8 +322,8 @@ test('write head with headers', async function (t) {
   }, function (res) {
     t.is(res.statusCode, 404)
 
-    const customHeader = res.rawHeaders.indexOf('X-Custom')
-    t.is(res.rawHeaders[customHeader], 'X-Custom')
+    const customHeader = res.rawHeaders.indexOf('x-custom')
+    t.is(res.rawHeaders[customHeader], 'x-custom')
     t.is(res.rawHeaders[customHeader + 1], '1234')
 
     res.on('data', () => t.fail('client should not receive data'))
