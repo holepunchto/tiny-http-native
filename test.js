@@ -183,7 +183,7 @@ test('destroy request', async function (t) {
     req.destroy()
 
     req.on('close', () => t.pass('server request closed'))
-    // res.on('close', () => t.pass('server response closed'))
+    // res.on('close', () => t.pass('server response closed')) // + this should be called
   })
 
   server.listen(0)
