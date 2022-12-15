@@ -317,7 +317,9 @@ class Response extends stream.Writable {
 
   writeHead (statusCode, headers) {
     this.statusCode = statusCode
-    this.headers = headers
+    if (typeof headers === 'object') {
+      for (const name in headers) this.setHeader(name, headers[name])
+    }
     this.flushHeaders()
   }
 
