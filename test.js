@@ -514,7 +514,7 @@ test('server does a big write', async function (t) {
   req.end()
 }) */
 
-/* test.skip('client does a big write', async function (t) {
+/* test.solo('client does a big write', async function (t) {
   t.plan(99)
 
   const server = createServer()
