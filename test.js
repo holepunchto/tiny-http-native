@@ -126,6 +126,45 @@ test('port already in use', async function (t) {
   })
 })
 
+test('destroy socket', async function (t) {
+  t.plan(99)
+
+  const server = createServer()
+  server.on('close', () => t.pass('server closed'))
+
+  server.on('connection', function (socket) {
+    socket.destroy()
+
+    socket.on('close', () => t.pass('server socket closed'))
+    socket.on('error', (err) => t.fail('server socket error: ' + err.message + ' (' + err.code + ')'))
+  })
+
+  server.on('request', function (req, res) {
+    t.fail('server should not receive request')
+  })
+
+  server.listen(0)
+  await waitForServer(server)
+
+  const req = http.request({
+    method: 'GET',
+    host: server.address().address,
+    port: server.address().port,
+    path: '/'
+  }, function (res) {
+    t.fail('client should not receive a response')
+  })
+
+  req.on('close', () => {
+    t.pass('client request closed')
+    server.close()
+  })
+
+  req.on('error', (err) => t.is(err.code, 'ECONNRESET', 'client socket hang up'))
+
+  req.end()
+})
+
 test('destroy request', async function (t) {
   t.plan(5)
 
