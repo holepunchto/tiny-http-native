@@ -126,47 +126,6 @@ test('port already in use', async function (t) {
   })
 })
 
-// ../deps/uv/src/unix/core.c:178: uv_close: Assertion `0' failed
-// Aborted (core dumped)
-/* test.solo('destroy socket', async function (t) {
-  t.plan(99)
-
-  const server = createServer()
-  server.on('close', () => t.pass('server closed'))
-
-  server.on('connection', function (socket) {
-    socket.destroy()
-
-    socket.on('close', () => t.pass('server socket closed'))
-    socket.on('error', (err) => t.fail('server socket error: ' + err.message + ' (' + err.code + ')'))
-  })
-
-  server.on('request', function (req, res) {
-    t.fail('server should not receive request')
-  })
-
-  server.listen(0)
-  await waitForServer(server)
-
-  const req = http.request({
-    method: 'GET',
-    host: server.address().address,
-    port: server.address().port,
-    path: '/'
-  }, function (res) {
-    t.fail('client should not receive a response')
-  })
-
-  req.on('close', () => {
-    t.pass('client request closed')
-    server.close()
-  })
-
-  req.on('error', (err) => t.is(err.code, 'ECONNRESET', 'client socket hang up'))
-
-  req.end()
-}) */
-
 test('destroy request', async function (t) {
   t.plan(5)
 
@@ -183,7 +142,7 @@ test('destroy request', async function (t) {
     req.destroy()
 
     req.on('close', () => t.pass('server request closed'))
-    // res.on('close', () => t.pass('server response closed')) // + this should be called
+    // res.on('close', () => t.pass('server response closed')) // TODO: this should be called
   })
 
   server.listen(0)
@@ -260,7 +219,7 @@ test('write head', async function (t) {
   })
 
   server.on('request', function (req, res) {
-    res.writeHead(404) // + should set content-length to zero?
+    res.writeHead(404) // TODO: should set content-length to zero?
     res.end()
 
     req.on('close', () => t.pass('server request closed'))
@@ -304,7 +263,7 @@ test('write head with headers', async function (t) {
   })
 
   server.on('request', function (req, res) {
-    res.writeHead(404, { 'x-custom': 1234 }) // + should set content-length to zero? otherwise the client receives "transfer-enconding: chunked"
+    res.writeHead(404, { 'x-custom': 1234 }) // TODO: should set content-length to zero? otherwise the client receives "transfer-enconding: chunked"
     res.end()
 
     req.on('close', () => t.pass('server request closed'))
@@ -382,61 +341,6 @@ test('chunked', async function (t) {
     res.on('end', () => {
       const body = b4a.concat(chunks)
       t.alike(body, b4a.from('part 1 + part 2'), 'client response ended')
-    })
-  })
-
-  req.on('close', () => {
-    t.pass('client request closed')
-    server.close()
-  })
-
-  req.on('error', (err) => t.fail('client req error: ' + err.message + ' (' + err.code + ')'))
-
-  req.end()
-})
-
-// + solo this test and it would randomly fail
-test('server does a big write', async function (t) {
-  t.plan(7)
-
-  const server = createServer()
-  server.on('close', () => t.pass('server closed'))
-
-  server.on('connection', function (socket) {
-    socket.on('close', () => t.pass('server socket closed'))
-    socket.on('error', (err) => {
-      console.error(err)
-      t.fail('server socket error: ' + err.message + ' (' + err.code + ')')
-    })
-  })
-
-  server.on('request', function (req, res) {
-    res.write(b4a.alloc(2 * 1024 * 1024, 'abcd'))
-    setImmediate(() => {
-      res.end(b4a.alloc(2 * 1024 * 1024, 'efgh'))
-    })
-
-    req.on('close', () => t.pass('server request closed'))
-    res.on('close', () => t.pass('server response closed'))
-  })
-
-  server.listen(0)
-  await waitForServer(server)
-
-  const req = http.request({
-    method: 'GET',
-    host: server.address().address,
-    port: server.address().port,
-    path: '/'
-  }, function (res) {
-    t.is(res.statusCode, 200)
-
-    const chunks = []
-    res.on('data', (chunk) => chunks.push(chunk))
-    res.on('end', () => {
-      const body = b4a.concat(chunks)
-      const expected = b4a.concat([b4a.alloc(2 * 1024 * 1024, 'abcd'), b4a.alloc(2 * 1024 * 1024, 'efgh')])
-      t.alike(body, expected, 'client response ended')
     })
   })
 
