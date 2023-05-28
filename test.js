@@ -354,6 +354,60 @@ test('chunked', async function (t) {
   req.end()
 })
 
+test('server does a big write', async function (t) {
+  t.plan(7)
+
+  const server = createServer()
+  server.on('close', () => t.pass('server closed'))
+
+  server.on('connection', function (socket) {
+    socket.on('close', () => t.pass('server socket closed'))
+    socket.on('error', (err) => {
+      console.error(err)
+      t.fail('server socket error: ' + err.message + ' (' + err.code + ')')
+    })
+  })
+
+  server.on('request', function (req, res) {
+    res.write(b4a.alloc(2 * 1024 * 1024, 'abcd'))
+    setImmediate(() => {
+      res.end(b4a.alloc(2 * 1024 * 1024, 'efgh'))
+    })
+
+    req.on('close', () => t.pass('server request closed'))
+    res.on('close', () => t.pass('server response closed'))
+  })
+
+  server.listen(0)
+  await waitForServer(server)
+
+  const req = http.request({
+    method: 'GET',
+    host: server.address().address,
+    port: server.address().port,
+    path: '/'
+  }, function (res) {
+    t.is(res.statusCode, 200)
+
+    const chunks = []
+    res.on('data', (chunk) => chunks.push(chunk))
+    res.on('end', () => {
+      const body = b4a.concat(chunks)
+      const expected = b4a.concat([b4a.alloc(2 * 1024 * 1024, 'abcd'), b4a.alloc(2 * 1024 * 1024, 'efgh')])
+      t.alike(body, expected, 'client response ended')
+    })
+  })
+
+  req.on('close', () => {
+    t.pass('client request closed')
+    server.close()
+  })
+
+  req.on('error', (err) => t.fail('client req error: ' + err.message + ' (' + err.code + ')'))
+
+  req.end()
+})
+
 function waitForServer (server) {
   return new Promise((resolve, reject) => {
     server.on('listening', done)
