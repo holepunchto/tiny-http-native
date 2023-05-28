@@ -306,7 +306,7 @@ class Response extends stream.Writable {
     this.headers = {}
     this.socket = socket
     this.request = request
-    this.headersFlushed = false
+    this.headersSent = false
     this.chunked = true
     this.close = close
     this.ondrain = null
@@ -317,7 +317,9 @@ class Response extends stream.Writable {
 
   writeHead (statusCode, headers) {
     this.statusCode = statusCode
-    this.headers = headers
+    if (typeof headers === 'object') {
+      for (const name of Object.keys(headers)) this.setHeader(name, headers[name])
+    }
     this.flushHeaders()
   }
 
@@ -335,7 +337,7 @@ class Response extends stream.Writable {
   }
 
   _write (data, callback) {
-    if (this.headersFlushed === false) this.flushHeaders()
+    if (this.headersSent === false) this.flushHeaders()
     if (this.onlyHeaders === true) return callback(null)
 
     if (typeof data === 'string') data = b4a.from(data)
@@ -357,7 +359,7 @@ class Response extends stream.Writable {
   }
 
   _final (callback) {
-    if (this.headersFlushed === false) this.flushHeaders()
+    if (this.headersSent === false) this.flushHeaders()
 
     if (this.chunked && this.onlyHeaders === false) this.socket.write(b4a.from('0\r\n\r\n'))
     if (this.close) this.socket.end()
@@ -374,7 +376,7 @@ class Response extends stream.Writable {
   }
 
   flushHeaders () {
-    if (this.headersFlushed === true) return
+    if (this.headersSent === true) return
 
     let h = 'HTTP/1.1 ' + this.statusCode + ' ' + STATUS_CODES.get(this.statusCode) + '\r\n'
     for (const name of Object.keys(this.headers)) {
@@ -384,22 +386,14 @@ class Response extends stream.Writable {
       if (n === 'content-length') this.chunked = false
       if (n === 'connection' && v === 'close') this.close = true
 
-      h += httpCase(n) + ': ' + v + '\r\n'
+      h += n + ': ' + v + '\r\n'
     }
     if (this.chunked) h += 'Transfer-Encoding: chunked\r\n'
     h += '\r\n'
 
     this.socket.write(b4a.from(h))
-    this.headersFlushed = true
+    this.headersSent = true
   }
-}
-
-function httpCase (n) {
-  let s = ''
-  for (const part of n.split('-')) {
-    s += (s ? '-' : '') + part.slice(0, 1).toUpperCase() + part.slice(1)
-  }
-  return s
 }
 
 function noop () {}
